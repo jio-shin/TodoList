@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <mvc:annotation-driven></mvc:annotation-driven>
+   <!-- ->spring MVC설정을 어노테이션 기반으로 처리하겠다는 의미
+   스프링MVC의 여러 객체들을 자동으로 스프링의 빈으로 등록-->
+
+    <mvc:resources mapping="/resources/**" location="/resources/"></mvc:resources>
+<!-- ->webapp directory 하위의 resources(정적파일의 저장소)의 위치로 등록
+** -> 하위의 모든 폴더를 의미함
+  /resources경로로 들어오는 요청은 정적파일을 요구하는 거라서 스프링 MVC에서 처리하지 않는다-->
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- ->스프링 MVC에서 제공하는 뷰를 어떻게 결정할 것인지 설정을 담당하는 빈(객체)-->
+        <property name="prefix" value="/WEB-INF/views/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <context:component-scan base-package="com.multicampus.springex.controller"/>
+<!--Formatter 를 servlet-context.xml에 적용하여 스프링의 빈으로 등록해야함.
+    이 등록을 위해 FormatterConversionServiceFactoryBean객체를 스프링의 빈으로 등록해야 함.
+    등록후 FormatterConversionServiceFactoryBean객체안에 LocalDateFormatter를 추가합니다. -->
+
+   <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="formatters">
+            <set>
+                <bean class="com.multicampus.springex.controller.formatter.LocalDateFormatter"/>
+                <bean class="com.multicampus.springex.controller.formatter.CheckboxFormatter"/>
+            </set>
+        </property>
+    </bean>
+
+
+
+<!--    conversionService 라는 빈을 등록한 후 스프링MVC를 처리할 때 mvc: annotation-driven 설정을 반드시 해줘야함.-->
+    <mvc:annotation-driven  conversion-service="conversionService" />
+
+
+</beans>
